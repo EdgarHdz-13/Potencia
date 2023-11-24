@@ -28,14 +28,14 @@ RON = 0.003;
 IC2 = 0;
 T = 1/50000;
 
-eq13 = R*IO == VO;
+eq13 = R*IO == VO;                          
 R = solve(eq13, R);
 
-eq15 = IL2-VC2/R == 0;
+eq15 = IL2-VC2/R == 0;                     
 IL2 = solve(eq15,IL2);
 IC1 =-IL2;
 
-eq16 = -IL2*D+IL1*Dp == 0;
+eq16 = -IL2*D+IL1*Dp == 0;                  
 IL1 = solve(eq16,IL1);
 
 eq9 = vg-RL1*IL1-(RON*(IL1-IC1))*D+(-VC1-vd)*Dp == 0;
@@ -54,7 +54,7 @@ D = double(D);
 Dp = (1-D);
 VC1 = double(VC1);
 
-eq16 = -IL2*D+IL1*Dp == 0;  
+eq16 = -IL2*D+IL1*Dp == 0;                  %REDEFINIR EQ16
 IL1 = double(solve(eq16,IL1));
 
 
@@ -85,15 +85,6 @@ C1 = solve(eq24,C1);
 
 eq25 = 2*DeVC2/(D*T) == VC2/(R*C2);
 C2 = solve(eq25,C2);
-
-% eq7 = (2*0.30)/(0.302*(1/50000)) == (-0.003*(0.695-3)+15.460+1.5*-3-0.260*3-5)/L2;
-% L2 = solve(eq7,L2);
-% 
-% eq8 = 2*0.03 == (0.30*T)/(8*C1);
-% C1 = solve(eq8,C1);
-% 
-% eq9 = (2*0.03)/(D*T)==5/(R*C2);
-% C2 = solve(eq9,C2);
 
 % Conversión de valores a double
 L1 = double(L1);
@@ -154,3 +145,58 @@ H = tf(sys);
 Hvc2vg = H(1); 
 Hvc2D = H(2); 
 % sisotool(Hvc2D);
+
+%% DISEÑO
+%% Diseño del compensador lead
+
+fdis    = 0;         %Frecuencia deseada
+fo      = 0;         %Frecuencia de resonancia
+phase    = 0;    
+theta   = (phase*pi)/180;
+
+fp = fdis*(sqrt((1+sin(theta))/(1-sin(theta))));
+fz = fdis*(sqrt((1-sin(theta))/(1+sin(theta))));
+
+gain = -25.8999;          %Ganancia del sistema
+K = ((fdis/fo)^2)*(1/gain)*sqrt(fz/fp);
+
+% Función de transferencia del LEAD
+wz = 2*pi*fz;
+wp = 2*pi*fp;
+
+CsLead = K*((s/wz)+1)/((s/wp)+1);
+
+% Función de transferencia deseada
+TsLead = -CsLead*H1;
+
+% Plot de la función de transferencia
+figure;
+bode(TsLead, opts);hold on;
+bode(H1, opts, 'K--');  hold off;
+
+%% Diseño del compensador lag
+fc = 0;
+fL = 0;
+
+wLLag  = 2*pi*fL;
+wcLag = 2*pi*fc;
+woLag = 2*pi*fdis;
+
+Gco = (((wcLag/woLag)^2)/K);
+CsLag = Gco*(1 + (wLLag/s));
+
+% Función de transferencia deseada
+TsLag = CsLag*H1;
+figure;
+bode(Hvd, opts, 'K--'); hold on;
+bode(TsLag, opts); hold off;
+
+% Lead-lag
+
+CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
+
+TsLeadLag = CsLeadLag*Hvd;
+bode(Hvd, opts,'K--'); hold on;
+bode(TsLeadLag, opts); hold off;
+
+
