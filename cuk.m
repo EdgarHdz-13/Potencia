@@ -31,10 +31,10 @@ IC1 =-IL2;
 eq16 = -IL2*D+IL1*Dp == 0;
 IL1 = solve(eq16,IL1);
 
-eq17 = vg-RL1*IL1-(RON*(IL1-IC1))*D+(-VC1-RC1*IC1-vd)*Dp == 0;
-eq18 = -VC2-RC2*IC2-RL2*IL2+(-RON*(IL1-IC1)+VC1+RC1*IC1)*D-vd*Dp == 0;
+eq9 = vg-RL1*IL1-(RON*(IL1-IC1))*D+(-VC1-vd)*Dp == 0;
+eq10 = -VC2-RC2*IC2-RL2*IL2+(-RON*(IL1-IC1)+VC1)*D-vd*Dp == 0;
 
-[D,VC1] = solve([eq17,eq18],[D,VC1]);
+[D,VC1] = solve([eq9,eq10],[D,VC1]);
 D = D(2);
 VC1 = VC1(2);
 % Conversión los valores están como 1x1 sym 
@@ -52,7 +52,7 @@ IL1 = double(solve(eq16,IL1));
 
 
 eq1 = VL1 == vg-RL1*IL1-RON*(IL1-IC1);
-eq2 = VL2 == -RON*(IL1-IC1)+VC1+RC1*IC1-RL2*IL2-VC2-RC2*IC2;
+eq2 = VL2 == -RON*(IL1-IC1)+VC1-RL2*IL2-VC2-RC2*IC2;
 eq3 = IC1 == IL2;
 eq4 = IC2 == IL2-VC2/R;
 
