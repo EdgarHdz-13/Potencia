@@ -91,8 +91,8 @@ H3 = H(3);
 
 %% Diseño del compensador lead
 
-fdis    = 4e3;         %Frecuencia deseada
-fo      = 631;         %Frecuencia de resonancia
+fdis    = 0;         %Frecuencia deseada
+fo      = 0;         %Frecuencia de resonancia
 phase    = 60;    
 theta   = (phase*pi)/180;
 
@@ -102,7 +102,7 @@ fz = fdis*(sqrt((1-sin(theta))/(1+sin(theta))));
 gain = 25.53;          %Ganancia del sistema
 K = ((fdis/fo)^2)*(1/gain)*sqrt(fz/fp);
 
-%% Función de transferencia del LEAD
+% Función de transferencia del LEAD
 wz = 2*pi*fz;
 wp = 2*pi*fp;
 
@@ -117,8 +117,8 @@ bode(TsLead, opts);hold on;
 bode(H1, opts, 'K--');  hold off;
 
 %% Diseño del compensador lag
-fc = 6e3;
-fL = 10;
+fc = 0;
+fL = 0;
 
 wLLag  = 2*pi*fL;
 wcLag = 2*pi*fc;
@@ -133,7 +133,7 @@ figure;
 bode(Hvd, opts, 'K--'); hold on;
 bode(TsLag, opts); hold off;
 
-%% Lead-lag
+% Lead-lag
 
 CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
 
