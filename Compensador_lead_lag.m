@@ -6,68 +6,68 @@ opts.FreqUnits = 'Hz';
 s = tf('s');
 
 %% Solve
-syms R iL2 D vc1 iL1 L1 L2 C1 C2 Ron RL1 RL2 T vc2 vg ig vd
+syms R IL2 D VC1 IL1 L1 L2 C1 C2 RON RL1 RL2 T vc2 vg ig vd
 syms ic1
 Dp = 1-D;
 
 eq13    = R*ig == vg;
-eq12    = iL2-vc2/R == 0;
-eq11    = -iL2*D+iL1*(1-D) == 0;
-eq9     = vg - RL1*iL1-((iL1-iL2)*Ron)*D+(-vc1-vd)*Dp == 0;
-eq10    = -vc2-RL2*iL2+(vc1-(iL1-iL2)*Ron)*D-vd*Dp == 0;    
+eq12    = IL2-vc2/R == 0;
+eq11    = -IL2*D+IL1*(1-D) == 0;
+eq9     = vg - RL1*IL1-((IL1-IL2)*RON)*D+(-VC1-vd)*Dp == 0;
+eq10    = -vc2-RL2*IL2+(VC1-(IL1-IL2)*RON)*D-vd*Dp == 0;    
 
 % Ecuaciones
 R = solve(eq13, R);                
-iL2 = solve(eq12, iL2);       
-iL1 = solve(eq11, iL1);
-[D,vc1] = solve([eq9,eq10],[D,vc1]);
+IL2 = solve(eq12, IL2);       
+IL1 = solve(eq11, IL1);
+[D,VC1] = solve([eq9,eq10],[D,VC1]);
 
 %% Resolver las ecuaciones
 % Variables
-vg = 5; ig = 3; vc2 = 5; Ron = 30e-3;
+vg = 5; ig = 3; vc2 = 5; RON = 30e-3;
 
 % Ecuaciones de nuevo
-syms R iL2 iL1 D vc1
+syms R IL2 IL1 D VC1
 
 eq13    = R*ig == vg;
 R = solve(eq13, R);  
 
-eq12    = iL2-vc2/R == 0;
-iL2 = solve(eq12, iL2); 
+eq12    = IL2-vc2/R == 0;
+IL2 = solve(eq12, IL2); 
 
-eq11    = -iL2*D+iL1*(1-D) == 0;
-iL1 = solve(eq11, iL1);
+eq11    = -IL2*D+IL1*(1-D) == 0;
+IL1 = solve(eq11, IL1);
 
-eq9     = vg - RL1*iL1-((iL1-iL2)*Ron)*D+(-vc1-vd)*Dp == 0;
-eq10    = -vc2-RL2*iL2+(vc1-(iL1-iL2)*Ron)*D-vd*Dp == 0;    
-[D,vc1] = solve([eq9,eq10],[D,vc1]); 
+eq9     = vg - RL1*IL1-((IL1-IL2)*RON)*D+(-VC1-vd)*Dp == 0;
+eq10    = -vc2-RL2*IL2+(VC1-(IL1-IL2)*RON)*D-vd*Dp == 0;    
+[D,VC1] = solve([eq9,eq10],[D,VC1]); 
 
 
 %% Valores del sistema
 R   =   5/3; 
-iL2 =   5/R; 
+IL2 =   5/R; 
 D   =   0.2786;
-vc1 =   20.0558;
-iL1 =   (iL2*D)/(1-D);
+VC1 =   20.0558;
+IL1 =   (IL2*D)/(1-D);
 L1  =   209e-6;
 L2  =   209e-6;
 C1  =   25e-6;
 C2  =   836e-6;
-Ron =   13.9e-3;
+RON =   13.9e-3;
 RL1 =   30e-3;
 RL2 =   30e-3;
 T   =   1/50e3;
 
 %% Matrices
-Am = [  -((RL1+Ron*D)/L1)   ,-(Ron*D)/L1        ,(1-D)/L1   ,0;
-        -(Ron*D)/L2         ,(RL2+Ron*D)/L2     ,D/L2       ,-1/L2;
+Am = [  -((RL1+RON*D)/L1)   ,-(RON*D)/L1        ,(1-D)/L1   ,0;
+        -(RON*D)/L2         ,(RL2+RON*D)/L2     ,D/L2       ,-1/L2;
         ((1-D)*T)/C1        ,-D/C1              ,0          ,0;
         0                   ,1/C2               ,0          -1/(C2*R)
     ];
 
-Bm = [  1/L1                ,-((iL1-iL2)*Ron)/L1;
-        0                   ,-(((iL1-iL2)*Ron)+D)/L2;
-        0                   ,(-iL2-iL1*T)/C1;
+Bm = [  1/L1                ,-((IL1-IL2)*RON)/L1;
+        0                   ,-(((IL1-IL2)*RON)+D)/L2;
+        0                   ,(-IL2-IL1*T)/C1;
         0                   ,0
      ];
 Cm = [0 0 0 1];
