@@ -5,9 +5,31 @@ opts = bodeoptions;
 opts.FreqUnits = 'Hz';
 s = tf('s');
 
-% Analisis Controlador%
-syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2
+
+
+% Analisis Controlador
+syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2 vg RL1 vd RC2 RL2
+syms T
 Dp = 1-D;
+
+% Jacobian equations
+eq28 = (1/L1)*( vg-RL1*IL1-(RON*(IL1+IL2))*D+(-VC1-vd)*Dp );
+eq29 = (1/L2)*( -VC2-RC2*IC2-RL2*IL2+(-RON*(IL1+IL2)+VC1)*D-vd*Dp );
+eq30 = (1/C1)*(-IL2*D+IL1*Dp*T);
+eq31 = (1/C2)*( IL2-VC2/R);
+
+% Función, estados, entrada y salida
+f = [eq28,eq29,eq30,eq31];
+x = [IL1, IL2, VC1, VC2];
+u = [vg, D];
+y = VC2;
+
+% Matrices
+AmJ = jacobian(f,x);
+BmJ = jacobian(f,u);
+CmJ = jacobian(y,x);
+DmJ = jacobian(y,u);
+
 IO = 3;
 VO = 5;
 VC2 = VO;
@@ -44,10 +66,10 @@ R = double(R);
 IL2 = double(IL2);
 IC1 = double(IC1);
 D = double(D);
-Dp = (D-1);
+Dp = (1-D);
 VC1 = double(VC1);
 
-eq16 = -IL2*D+IL1*Dp == 0;
+eq16 = -IL2*D+IL1*Dp == 0;  
 IL1 = double(solve(eq16,IL1));
 
 
@@ -94,12 +116,15 @@ L2 = double(L2);
 C1 = double(C1);
 C2 = double(C2);
 
-% Matrices
+
+%% Matrices Normales
 Am = [  -((RL1+RON*D)/L1)   ,-(RON*D)/L1        ,(1-D)/L1   ,0;
-        -(RON*D)/L2         ,(RL2+RON*D)/L2     ,D/L2       ,-1/L2;
-        ((1-D)*T)/C1        ,-D/C1              ,0          ,0;
-        0                   ,1/C2               ,0          -1/(C2*R)
-    ];
+       -(RON*D)/L2         ,(RL2+RON*D)/L2     ,D/L2       ,-1/L2;
+       ((1-D)*T)/C1        ,-D/C1              ,0          ,0;
+       0                   ,1/C2               ,0          -1/(C2*R)
+   ];
+
+%
 
 Bm = [  1/L1                ,-((IL1-IL2)*RON)/L1;
         0                   ,-(((IL1-IL2)*RON)+D)/L2;
@@ -113,6 +138,6 @@ sys = ss(Am,Bm,Cm,Dm);
 
 % Funciones de transferencia
 H = tf(sys);
-Hvg = H(1); 
-HD = H(2); 
-% sisotool(HD);
+Hvc2vg = H(1); 
+Hvc2D = H(2); 
+% sisotool(Hvc2D);
