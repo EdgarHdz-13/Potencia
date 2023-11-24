@@ -6,7 +6,7 @@ opts.FreqUnits = 'Hz';
 s = tf('s');
 
 % Analisis Controlador%
-syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 R D RON RO IO VO L1 L2 C1 C2
+syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R IO VO L1 L2 C1 C2
 Dp = 1-D;
 IO = 3;
 VO = 5;
@@ -21,10 +21,10 @@ RON = 0.003;
 IC2 = 0;
 T = 1/50000;
 
-eq13 = RO*IO == VO;
-RO = solve(eq13, RO);
+eq13 = R*IO == VO;
+R = solve(eq13, R);
 
-eq15 = IL2-VC2/RO == 0;
+eq15 = IL2-VC2/R == 0;
 IL2 = solve(eq15,IL2);
 IC1 =-IL2;
 
@@ -40,7 +40,7 @@ VC1 = VC1(2);
 % Conversión los valores están como 1x1 sym 
 syms IL1
 
-RO = double(RO);
+R = double(R);
 IL2 = double(IL2);
 IC1 = double(IC1);
 D = double(D);
@@ -63,10 +63,8 @@ VL2 = solve(eq6,VL2);
 IC1 = solve(eq7,IC1);
 IC2 = solve(eq8,IC2);
 
-
-%%
 eq22 = (2*DeIL)/(D*T) == VL1/L1;
-
+%%
 eq6 = (2*0.30)/(0.302*(1/50000)) == (15-RL1*0.695-0.003*(0.695-3))/L1;
 L1 = solve(eq6,L1);
 
@@ -74,11 +72,16 @@ eq7 = (2*0.30)/(0.302*(1/50000)) == (-0.003*(0.695-3)+15.460+1.5*-3-0.260*3-5)/L
 L2 = solve(eq7,L2);
 
 eq8 = 2*0.03 == (0.30*T)/(8*C1);
-C1 = solve(eq8,C1)
+C1 = solve(eq8,C1);
 
-eq9 = (2*0.03)/(D*T)==5/(RO*C2);
-C2 = solve(eq9,C2)
+eq9 = (2*0.03)/(D*T)==5/(R*C2);
+C2 = solve(eq9,C2);
 
+% Conversión de valores a double
+L1 = double(L1);
+L2 = double(L2);
+C1 = double(C1);
+C2 = -double(C2);
 
 %% Matrices
 Am = [  -((RL1+RON*D)/L1)   ,-(RON*D)/L1        ,(1-D)/L1   ,0;
@@ -96,3 +99,9 @@ Cm = [0 0 0 1];
 Dm = [0 0];
 
 sys = ss(Am,Bm,Cm,Dm);
+
+% Funciones de transferencia
+H = tf(sys);
+Hvg = H(1); 
+HD = H(2); 
+sisotool(HD);
