@@ -32,7 +32,7 @@ eq16 = -IL2*D+IL1*Dp == 0;
 IL1 = solve(eq16,IL1);
 
 eq17 = vg-RL1*IL1-(RON*(IL1-IC1))*D+(-VC1-RC1*IC1-vd)*Dp == 0;
-eq18 = VC2-RC2*IC2-RL2*IL2+(-RON*(IL1-IC1)+VC1+RC1*IC1)*D-vd*Dp == 0;
+eq18 = -VC2-RC2*IC2-RL2*IL2+(-RON*(IL1-IC1)+VC1+RC1*IC1)*D-vd*Dp == 0;
 
 [D,VC1] = solve([eq17,eq18],[D,VC1]);
 D = D(2);
@@ -115,4 +115,4 @@ sys = ss(Am,Bm,Cm,Dm);
 H = tf(sys);
 Hvg = H(1); 
 HD = H(2); 
-sisotool(HD);
+% sisotool(HD);
