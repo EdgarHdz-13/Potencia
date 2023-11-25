@@ -18,7 +18,7 @@ Dp = 1-D;
 IO = 3;
 VO = 5;
 VC2 = VO;
-vg = 15;
+vg = 120;
 RL1 = 0.260;
 RC1 = 1.5;
 RL2 = RL1;
@@ -93,7 +93,7 @@ C1 = double(C1);
 C2 = double(C2);
 
 
-%% Matrices Normales
+% Matrices Normales
 % Am = [  -((RL1+RON*D)/L1)   ,-(RON*D)/L1        ,(1-D)/L1   ,0;
 %        -(RON*D)/L2         ,(RL2+RON*D)/L2     ,D/L2       ,-1/L2;
 %        ((1-D)*T)/C1        ,-D/C1              ,0          ,0;
@@ -144,14 +144,17 @@ sys = ss(Am,Bm,Cm,Dm);
 H = tf(sys);
 Hvc2vg = H(1); 
 Hvc2D = H(2); 
-% sisotool(Hvc2D);
+% sisotool(Hvc2D);          %Fase no minima
+% sisotool(Hvc2vg);
+
+SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
 
 %% DISEÑO
-%% Diseño del compensador lead
+% Diseño del compensador lead
 
 fdis    = 0;         %Frecuencia deseada
 fo      = 0;         %Frecuencia de resonancia
-phase    = 0;    
+phase    = 60;    
 theta   = (phase*pi)/180;
 
 fp = fdis*(sqrt((1+sin(theta))/(1-sin(theta))));
