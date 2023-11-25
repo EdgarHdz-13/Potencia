@@ -147,21 +147,22 @@ Hvc2D = H(2);
 % sisotool(Hvc2D);          %Fase no minima
 % sisotool(Hvc2vg);
 
-SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
+% DISEÑO
 
-%% DISEÑO
+SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
+freqMax = 30e3;
+
 % Diseño del compensador lead
 
-fdis    = 0;         %Frecuencia deseada
-fo      = 0;         %Frecuencia de resonancia
-phase    = 60;    
-theta   = (phase*pi)/180;
+fcdis           = freqMax/20;           %Frecuencia deseada       1 decada antes
+fo              = 800;                 %Frecuencia de resonancia PSIM
+phasemargin     = 40;                 
+theta           = (phasemargin*pi)/180;
 
-fp = fdis*(sqrt((1+sin(theta))/(1-sin(theta))));
-fz = fdis*(sqrt((1-sin(theta))/(1+sin(theta))));
+fp = fcdis*(sqrt((1+sin(theta))/(1-sin(theta))));
+fz = fcdis*(sqrt((1-sin(theta))/(1+sin(theta))));
 
-gain = -25.8999;          %Ganancia del sistema
-K = ((fdis/fo)^2)*(1/gain)*sqrt(fz/fp);
+K = ((fcdis/fo)^2)*(1/SysGain)*sqrt(fz/fp);
 
 % Función de transferencia del LEAD
 wz = 2*pi*fz;
@@ -170,36 +171,41 @@ wp = 2*pi*fp;
 CsLead = K*((s/wz)+1)/((s/wp)+1);
 
 % Función de transferencia deseada
-TsLead = -CsLead*H1;
+TsLead = CsLead*Hvc2D;
 
 % Plot de la función de transferencia
 figure;
+title("Lead Hvc2D");
 bode(TsLead, opts);hold on;
-bode(H1, opts, 'K--');  hold off;
+bode(Hvc2D, opts, 'K--');  hold off;
 
 %% Diseño del compensador lag
-fc = 0;
-fL = 0;
+fc = freqMax/20;
+fL = 15;
 
 wLLag  = 2*pi*fL;
 wcLag = 2*pi*fc;
-woLag = 2*pi*fdis;
+woLag = 2*pi*fcdis;
 
 Gco = (((wcLag/woLag)^2)/K);
 CsLag = Gco*(1 + (wLLag/s));
 
 % Función de transferencia deseada
-TsLag = CsLag*H1;
+TsLag = CsLag*Hvc2D;
 figure;
-bode(Hvd, opts, 'K--'); hold on;
+title("Lag Hvc2D");
+bode(Hvc2D, opts, 'K--'); hold on;
 bode(TsLag, opts); hold off;
 
 % Lead-lag
 
 CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
 
-TsLeadLag = CsLeadLag*Hvd;
-bode(Hvd, opts,'K--'); hold on;
+TsLeadLag = CsLeadLag*Hvc2D;
+
+figure;
+title("Lead-Lag Hvc2D");
+bode(Hvc2D, opts,'K--'); hold on;
 bode(TsLeadLag, opts); hold off;
 
 
