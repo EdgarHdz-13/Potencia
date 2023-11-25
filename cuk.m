@@ -6,12 +6,12 @@ opts.FreqUnits = 'Hz';
 s = tf('s');
 
 % Variables simbolicas del Jacobiano
-syms VL1J IL1J VC1J IC1J VL2J IL2J VC2J IC2J DJ RONJ RJ L1J L2J C1J C2J vgJ RL1J vdJ RC2J RL2J
+syms VL1J IL1J VC1J IC1J VL2J IL2J VC2J IC2J DJ RONJ RJ L1J L2J C1J C2J vgJ RL1J vdJ RL2J
 syms TJ
 DpJ = 1-DJ;
 
 % Analisis Controlador
-syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2 vg RL1 vd RC2 RL2
+syms VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2 vg RL1 vd RL2
 syms T
 Dp = 1-D;
 
@@ -20,9 +20,7 @@ VO = 5;
 VC2 = VO;
 vg = 120;
 RL1 = 0.260;
-RC1 = 1.5;
 RL2 = RL1;
-RC2 = RC1;
 vd = 0.7;
 RON = 0.003;
 IC2 = 0;
@@ -39,7 +37,7 @@ eq16 = -IL2*D+IL1*Dp == 0;
 IL1 = solve(eq16,IL1);
 
 eq9 = vg-RL1*IL1-(RON*(IL1-IC1))*D+(-VC1-vd)*Dp == 0;
-eq10 = -VC2-RC2*IC2-RL2*IL2+(-RON*(IL1-IC1)+VC1)*D-vd*Dp == 0;
+eq10 = -VC2-RL2*IL2+(-RON*(IL1-IC1)+VC1)*D-vd*Dp == 0;
 
 [D,VC1] = solve([eq9,eq10],[D,VC1]);
 D = D(2);
@@ -59,7 +57,7 @@ IL1 = double(solve(eq16,IL1));
 
 
 eq1 = VL1 == vg-RL1*IL1-RON*(IL1-IC1);
-eq2 = VL2 == -RON*(IL1-IC1)+VC1-RL2*IL2-VC2-RC2*IC2;
+eq2 = VL2 == -RON*(IL1-IC1)+VC1-RL2*IL2-VC2;
 eq3 = IC1 == IL2;
 eq4 = IC2 == IL2-VC2/R;
 
@@ -114,7 +112,7 @@ C2 = double(C2);
 
 % Ecuaciones 
 eq28 = (1/L1J)*( vgJ-RL1J*IL1J-(RONJ*(IL1J+IL2J))*DJ+(-VC1J-vdJ)*DpJ );
-eq29 = (1/L2J)*( -VC2J-RC2J*IC2J-RL2J*IL2J+(-RONJ*(IL1J+IL2J)+VC1J)*DJ-vdJ*DpJ );
+eq29 = (1/L2J)*( -VC2J-RL2J*IL2J+(-RONJ*(IL1J+IL2J)+VC1J)*DJ-vdJ*DpJ );
 eq30 = (1/C1J)*(-IL2J*DJ+IL1J*DpJ*TJ);
 eq31 = (1/C2J)*( IL2J-VC2J/RJ);
 
@@ -130,8 +128,8 @@ BmJ = jacobian(f,u);
 CmJ = jacobian(y,x);
 DmJ = jacobian(y,u);
 % Matrices a Sustituir
-subsm = [VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2 vg RL1 vd RC2 RL2 T];
-jsubsm = [VL1J IL1J VC1J IC1J VL2J IL2J VC2J IC2J DJ RONJ RJ L1J L2J C1J C2J vgJ RL1J vdJ RC2J RL2J TJ];
+subsm = [VL1 IL1 VC1 IC1 VL2 IL2 VC2 IC2 D RON R L1 L2 C1 C2 vg RL1 vd  RL2 T];
+jsubsm = [VL1J IL1J VC1J IC1J VL2J IL2J VC2J IC2J DJ RONJ RJ L1J L2J C1J C2J vgJ RL1J vdJ RL2J TJ];
 
 Am = double(subs(AmJ, jsubsm,subsm));
 Bm = double(subs(BmJ, jsubsm,subsm));
@@ -146,7 +144,7 @@ Hvc2vg = H(1);
 Hvc2D = H(2); 
 % sisotool(Hvc2D);          %Fase no minima
 % sisotool(Hvc2vg);
-
+% bode(Hvc2D, opts);
 % DISEÑO
 
 SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
