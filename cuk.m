@@ -152,11 +152,11 @@ Hvc2D = H(2);
 SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
 freqMax = 30e3;
 
-% Diseño del compensador lead
+%% Diseño del compensador lead
 
 fcdis           = freqMax/20;           %Frecuencia deseada       1 decada antes
 fo              = 800;                 %Frecuencia de resonancia PSIM
-phasemargin     = 40;                 
+phasemargin     = 60;                 
 theta           = (phasemargin*pi)/180;
 
 fp = fcdis*(sqrt((1+sin(theta))/(1-sin(theta))));
@@ -197,7 +197,7 @@ title("Lag Hvc2D");
 bode(Hvc2D, opts, 'K--'); hold on;
 bode(TsLag, opts); hold off;
 
-% Lead-lag
+%% Lead-lag
 
 CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
 
