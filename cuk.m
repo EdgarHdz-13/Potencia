@@ -113,7 +113,7 @@ C2 = double(C2);
 % Ecuaciones 
 eq28 = (1/L1J)*( vgJ-RL1J*IL1J-(RONJ*(IL1J+IL2J))*DJ+(-VC1J-vdJ)*DpJ );
 eq29 = (1/L2J)*( -VC2J-RL2J*IL2J+(-RONJ*(IL1J+IL2J)+VC1J)*DJ-vdJ*DpJ );
-eq30 = (1/C1J)*(-IL2J*DJ+IL1J*DpJ*TJ);
+eq30 = (1/C1J)*(-IL2J*DJ+IL1J*DpJ);
 eq31 = (1/C2J)*( IL2J-VC2J/RJ);
 
 % Función, estados, entrada y salida
@@ -142,7 +142,7 @@ sys = ss(Am,Bm,Cm,Dm);
 H = tf(sys);
 Hvc2vg = H(1); 
 Hvc2D = H(2); 
-% sisotool(Hvc2D);          %Fase no minima
+% sisotool(Hvc2D);       
 % sisotool(Hvc2vg);
 % bode(Hvc2D, opts);
 % DISEÑO
@@ -150,60 +150,67 @@ Hvc2D = H(2);
 SysGain = Hvc2D.numerator{1,1}(5)/Hvc2D.denominator{1,1}(5);
 freqMax = 30e3;
 
-%% Diseño del compensador lead
+% %% Diseño del compensador lead
+% 
+% fcdis           = freqMax/20;           %Frecuencia deseada       1 decada antes
+% fo              = 800;                 %Frecuencia de resonancia PSIM
+% phasemargin     = 60;                 
+% theta           = (phasemargin*pi)/180;
+% 
+% fp = fcdis*(sqrt((1+sin(theta))/(1-sin(theta))));
+% fz = fcdis*(sqrt((1-sin(theta))/(1+sin(theta))));
+% 
+% K = ((fcdis/fo)^2)*(1/SysGain)*sqrt(fz/fp);
+% 
+% % Función de transferencia del LEAD
+% wz = 2*pi*fz;
+% wp = 2*pi*fp;
+% 
+% CsLead = K*((s/wz)+1)/((s/wp)+1);
+% 
+% % Función de transferencia deseada
+% TsLead = CsLead*Hvc2D;
+% 
+% % Plot de la función de transferencia
+% figure;
+% title("Lead Hvc2D");
+% bode(TsLead, opts);hold on;
+% bode(Hvc2D, opts, 'K--');  hold off;
+% 
+% %% Diseño del compensador lag
+% fc = freqMax/20;
+% fL = 15;
+% 
+% wLLag  = 2*pi*fL;
+% wcLag = 2*pi*fc;
+% woLag = 2*pi*fcdis;
+% 
+% Gco = (((wcLag/woLag)^2)/K);
+% CsLag = Gco*(1 + (wLLag/s));
+% 
+% % Función de transferencia deseada
+% TsLag = CsLag*Hvc2D;
+% figure;
+% title("Lag Hvc2D");
+% bode(Hvc2D, opts, 'K--'); hold on;
+% bode(TsLag, opts); hold off;
+% 
+% %% Lead-lag
+% 
+% CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
+% 
+% TsLeadLag = CsLeadLag*Hvc2D;
+% 
+% figure;
+% title("Lead-Lag Hvc2D");
+% bode(Hvc2D, opts,'K--'); hold on;
+% bode(TsLeadLag, opts); hold off;
 
-fcdis           = freqMax/20;           %Frecuencia deseada       1 decada antes
-fo              = 800;                 %Frecuencia de resonancia PSIM
-phasemargin     = 60;                 
-theta           = (phasemargin*pi)/180;
+% Diseño a mano
 
-fp = fcdis*(sqrt((1+sin(theta))/(1-sin(theta))));
-fz = fcdis*(sqrt((1-sin(theta))/(1+sin(theta))));
+% sisotool(Hvc2D); 
 
-K = ((fcdis/fo)^2)*(1/SysGain)*sqrt(fz/fp);
-
-% Función de transferencia del LEAD
-wz = 2*pi*fz;
-wp = 2*pi*fp;
-
-CsLead = K*((s/wz)+1)/((s/wp)+1);
-
-% Función de transferencia deseada
-TsLead = CsLead*Hvc2D;
-
-% Plot de la función de transferencia
-figure;
-title("Lead Hvc2D");
-bode(TsLead, opts);hold on;
-bode(Hvc2D, opts, 'K--');  hold off;
-
-%% Diseño del compensador lag
-fc = freqMax/20;
-fL = 15;
-
-wLLag  = 2*pi*fL;
-wcLag = 2*pi*fc;
-woLag = 2*pi*fcdis;
-
-Gco = (((wcLag/woLag)^2)/K);
-CsLag = Gco*(1 + (wLLag/s));
-
-% Función de transferencia deseada
-TsLag = CsLag*Hvc2D;
-figure;
-title("Lag Hvc2D");
-bode(Hvc2D, opts, 'K--'); hold on;
-bode(TsLag, opts); hold off;
-
-%% Lead-lag
-
-CsLeadLag = K*( ( (s/wz)+1)*((wLLag/s) + 1 )/ ((s/wp)+1) );
-
-TsLeadLag = CsLeadLag*Hvc2D;
-
-figure;
-title("Lead-Lag Hvc2D");
-bode(Hvc2D, opts,'K--'); hold on;
-bode(TsLeadLag, opts); hold off;
-
+CsLeadLagManual = 1.6162*((0.55*s+1)*(0.00012*s+1))/(s*(0.01*s+1));
+TsLeadLagManual = CsLeadLagManual*Hvc2D;
+bode(TsLeadLagManual, opts); hold off;
 
