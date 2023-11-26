@@ -26,6 +26,8 @@ RON = 0.003;
 IC2 = 0;
 T = 1/50000;
 
+% D. Diseño del convertidor
+
 eq13 = R*IO == VO;                          
 R = solve(eq13, R);
 
